@@ -1,12 +1,10 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { FullCalendarComponent } from '@fullcalendar/angular';
-import { EventInput, Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
 import { formatDate } from '@fullcalendar/core';
-import { Observable } from 'rxjs';
 import { GetEventsService } from './get-events.service';
 
 @Component({
@@ -24,7 +22,7 @@ export class AppComponent implements OnInit {
   calendarPlugins = [dayGridPlugin, timeGridPlugin, interactionPlugin, bootstrapPlugin];
   calendarWeekends = false;
   calendarEvents: any = [];
-  idCount: number = 1;
+  idCount: number;
   crId: any;
   crTitle: any;
   crDate: any;
@@ -33,9 +31,11 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     let subscription = this.getService.getEvents().subscribe(
       (events) => {
-
         this.calendarEvents = events;
-
+        this.calendarEvents.forEach(obj => {
+          this.idCount = obj.id;
+          console.log(this.idCount);
+        });
       });
   }
 
@@ -69,6 +69,7 @@ export class AppComponent implements OnInit {
       title: this.crTitle,
       start: this.crDate
     });
+    this.getService.saveEvent({"title":this.crTitle, "start": this.crDate});
     console.log(this.calendarEvents);
     document.getElementById('closeModal').click();
   }
@@ -78,6 +79,7 @@ export class AppComponent implements OnInit {
     this.calendarEvents.forEach(obj => {
       if (obj.id == this.crId) {
         this.calendarEvents.splice(this.calendarEvents.indexOf(obj), 1);
+        this.getService.deleteEvent(obj.id);
       }
       console.log(this.calendarEvents);
     });
